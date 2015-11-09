@@ -1,0 +1,65 @@
+<project name="Tiliprojekti" basedir="." default="use">
+  <description>
+    Build file for Tiliprojekti
+  </description>
+  <!-- set global properties for this build -->
+  <property name="src" location="src"/>
+  <property name="build" location="build"/>
+  <property environment="env"/>
+  
+  <path id="classpath">
+    <fileset dir="${env.ANT_HOME}/lib">
+      <include name="**/*.jar" />
+    </fileset>
+  </path>
+  
+  
+  <target name="init">
+    <!-- Create the time stamp -->
+    <tstamp/>
+    <!-- Create the build directory structure used by compile -->
+    <mkdir dir="${build}"/>
+    <!-- fetch files from git -->
+    <git command="pull" dir="."/>
+  </target>
+  
+  <target name="compile" depends="init"
+          description="compile the source " >
+    <!-- Compile the java code from ${src} into ${build} -->
+    <javac 
+       includeantruntime="false" srcdir="${src}" destdir="${build}"
+       fork="yes"/>
+  </target>
+  
+  <target name="tilit" depends="compile"
+          description="compile the source " >
+    <jar destfile="Tiliprojekti.jar"  basedir="${build}">
+      <manifest>
+        <attribute name="Main-Class" value="TiliTesti"/>
+      </manifest>
+    </jar>
+  </target>
+
+  <target name="use" depends="tilit" description="compile and run">
+    <java jar="Tiliprojekti.jar" fork="true"/>
+  </target>
+
+  <target name="clean">
+    <delete dir="${build}"/>
+    <delete file="MANIFEST.MF"/>
+    <delete file="Tiliprojekti.jar"/>
+  </target>
+
+  <macrodef name = "git">
+    <attribute name = "command" />
+    <attribute name = "dir" default = "" />
+    <element name = "args" optional = "true" />
+    <sequential>
+      <echo message = "git @{command}" />
+    <exec executable = "git" dir = "@{dir}">
+      <arg value = "@{command}" />
+      <args/>
+    </exec>
+    </sequential>
+  </macrodef>
+</project>
